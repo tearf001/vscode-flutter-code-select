@@ -76,11 +76,13 @@ function getSearchContext() {
         //exchange
         [selectionStart, selectionEnd] = [selectionEnd, selectionStart]
     }
-    return {
-        backwardStarter: selectionStart - 1, //coverage vscode selection index to text index
+    var r = {
+        backwardStarter: selectionStart - 1,
         forwardStarter: selectionEnd,
         text: editor.document.getText()
-    }
+    };
+    //console.log('backwardStarter',r.backwardStarter,'forwardStarter',r.forwardStarter,'\n','text',r.text);
+    return r;
 }
 
 function doSelection(start: number, end: number) {
@@ -93,23 +95,23 @@ function isMatch(r1: SearchResult, r2: SearchResult) {
     return r1 != null && r2 != null && bracketUtil.isMatch(r1.bracket, r2.bracket);
 }
 
-function selectText(includeBrack: boolean) {
-    const searchContext = getSearchContext();
+function selectText(includeBrack: boolean,inCludeWidget: boolean = false) {
+    const searchContext = getSearchContext();//
     let { text, backwardStarter, forwardStarter } = searchContext;
     if (backwardStarter < 0 || forwardStarter >= text.length) {
         return;
     }
 
     let selectionStart: number, selectionEnd: number;
-    var backwardResult = findBackward(searchContext.text, searchContext.backwardStarter);
-    var forwardResult = findForward(searchContext.text, searchContext.forwardStarter);
+    var backwardResult = findBackward(searchContext.text, searchContext.backwardStarter);//后查
+    var forwardResult = findForward(searchContext.text, searchContext.forwardStarter);//前查
 
-    while (forwardResult != null
+    while (forwardResult != null // 当 后查有,且和前查 标记不同,且为引号 那么从尾位置继续往后找,直到和前查匹配
         && !isMatch(backwardResult, forwardResult)
         && bracketUtil.isQuoteBracket(forwardResult.bracket)) {
-        forwardResult = findForward(searchContext.text, forwardResult.offset + 1);
+        forwardResult = findForward(searchContext.text, forwardResult.offset + 1); 
     }
-    while (backwardResult != null
+    while (backwardResult != null //当前查有,且和后查 标记不同,且为引号,那么继续从头位置往前继续查,直到和后查匹配
         && !isMatch(backwardResult, forwardResult)
         && bracketUtil.isQuoteBracket(backwardResult.bracket)) {
         backwardResult = findBackward(searchContext.text, backwardResult.offset - 1);
@@ -126,8 +128,15 @@ function selectText(includeBrack: boolean) {
         selectionEnd = forwardStarter + 1;
     } else {
         if (includeBrack) {
-            selectionStart = backwardResult.offset - 1;
+            selectionStart = backwardResult.offset - 1;//起点位置
             selectionEnd = forwardResult.offset + 1;
+            if(inCludeWidget && backwardResult.bracket == '('){
+                var regex = /(new )?\b_?[A-Z][a-zA-Z_]*\s*\($/g;
+                var backwardBuffer = searchContext.text.substring(0,selectionStart+2);
+                var widgetStart = backwardBuffer.search(regex)
+                if(widgetStart>=0)
+                    selectionStart = widgetStart -1;
+            }
         } else {
             selectionStart = backwardResult.offset;
             selectionEnd = forwardResult.offset;
@@ -140,13 +149,17 @@ function selectText(includeBrack: boolean) {
 //This is the main extension point
 export function activate(context: vscode.ExtensionContext) {
     context.subscriptions.push(
-        vscode.commands.registerCommand('bracket-select.select', function () {
+        vscode.commands.registerCommand('flutter-code-select.select', function () {
             selectText(false);
         }),
-        vscode.commands.registerCommand('bracket-select.select-include', function () {
+        vscode.commands.registerCommand('flutter-code-select.select-include', function () {
             selectText(true);
+        }),
+        vscode.commands.registerCommand('flutter-code-select.widget-include', function () {
+            selectText(true,true);
         })
     );
+    //vscode.window.showInformationMessage('from wxh');
 }
 
 // this method is called when your extension is deactivated
