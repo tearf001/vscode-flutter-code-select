@@ -2,7 +2,7 @@
     "name": "flutter-code-select",
     "displayName": "flutter code select",
     "description": "Quick select code between brackets, support for (),{} and [],quotes, <>,\nif Is *Widget()*,the widget name will be included",
-    "version": "1.1.0",
+    "version": "1.1.1",
     "publisher": "wangxinhai-ref-chunsen",
     "icon": "icon.png",
     "engines": {

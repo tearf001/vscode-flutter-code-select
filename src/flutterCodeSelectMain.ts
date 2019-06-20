@@ -133,9 +133,13 @@ function selectText(includeBrack: boolean,inCludeWidget: boolean = false) {
             if(inCludeWidget && backwardResult.bracket == '('){
                 var regex = /(new )?\b_?[A-Z][a-zA-Z_]*\s*\($/g;
                 var backwardBuffer = searchContext.text.substring(0,selectionStart+2);
+                var forwoardBuffer = searchContext.text.substring(selectionEnd,selectionEnd+1);
                 var widgetStart = backwardBuffer.search(regex)
                 if(widgetStart>=0)
                     selectionStart = widgetStart -1;
+                if(forwoardBuffer == ','){
+                    selectionEnd +=1;
+                }
             }
         } else {
             selectionStart = backwardResult.offset;
