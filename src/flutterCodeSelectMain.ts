@@ -20,7 +20,7 @@ function findBackward(text: string, index: number): SearchResult {
         let char = text.charAt(i);
         // if it's a quote, we can not infer it is a open or close one 
         //so just return, this is for the case current selection is inside a string; 
-        if (bracketUtil.isQuoteBracket(char) && bracketStack.length == 0) {
+        if (bracketUtil.isSameBracket(char) && bracketStack.length == 0) {
             return new SearchResult(char, i);
         }
         if (bracketUtil.isOpenBracket(char)) {
@@ -44,7 +44,7 @@ function findForward(text: string, index: number): SearchResult {
     const bracketStack: string[] = [];
     for (let i = index; i < text.length; i++) {
         let char = text.charAt(i);
-        if (bracketUtil.isQuoteBracket(char) && bracketStack.length == 0) {
+        if (bracketUtil.isSameBracket(char) && bracketStack.length == 0) {
             return new SearchResult(char, i);
         }
         if (bracketUtil.isCloseBracket(char)) {
@@ -108,12 +108,12 @@ function selectText(includeBrack: boolean,inCludeWidget: boolean = false) {
 
     while (forwardResult != null // 当 后查有,且和前查 标记不同,且为引号 那么从尾位置继续往后找,直到和前查匹配
         && !isMatch(backwardResult, forwardResult)
-        && bracketUtil.isQuoteBracket(forwardResult.bracket)) {
+        && bracketUtil.isSameBracket(forwardResult.bracket)) {
         forwardResult = findForward(searchContext.text, forwardResult.offset + 1); 
     }
     while (backwardResult != null //当前查有,且和后查 标记不同,且为引号,那么继续从头位置往前继续查,直到和后查匹配
         && !isMatch(backwardResult, forwardResult)
-        && bracketUtil.isQuoteBracket(backwardResult.bracket)) {
+        && bracketUtil.isSameBracket(backwardResult.bracket)) {
         backwardResult = findBackward(searchContext.text, backwardResult.offset - 1);
     }
 

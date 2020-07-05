@@ -55,7 +55,27 @@
                 "mac": "ctrl+shift+w",
                 "when": "editorTextFocus"
             }
-        ]
+        ],
+		"configuration": {
+			"title": "Bracket Select configuration",
+			"properties": {
+				"flutter-code-select.openBracket": {
+					"type": "array",
+					"default": ["(", "{", "["],
+					"description": "Characters to be recognized as opening brackets. MUST have a pair in openingBrackets."
+				},
+				"flutter-code-select.closeBracket": {
+					"type": "array",
+					"default": [")", "}", "]"],
+					"description": "Characters to be recognized as closing brackets. MUST have a pair in closingBrackets."
+				},
+				"flutter-code-select.sameBracket": {
+					"type": "array",
+					"default": ["\"", "'", "`"],
+					"description": "double quote is escaped for JSON"
+				}
+			}
+		}
     },
     "scripts": {
         "vscode:prepublish": "tsc -p ./",
@@ -66,7 +86,7 @@
     "devDependencies": {
         "@types/mocha": "^2.2.32",
         "@types/node": "^6.0.40",
-        "mocha": "^2.3.3",
+        "mocha": "^8.0.1",
         "typescript": "^2.0.3",
         "vscode": "^1.1.34"
     },
